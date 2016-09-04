@@ -48,9 +48,10 @@ var assetsObj = {
     }
   }
 };
-var scale = window.innerWidth / 375
+const WIDTH = 375
+const viewScale = window.innerWidth / WIDTH
 window.onload = function () {
-  Crafty.init(scale * 375, scale * 400, document.getElementById('game'));
+  Crafty.init(viewScale * 375, viewScale * 400, document.getElementById('game'));
 
   Crafty.load(assetsObj, go);
 };
@@ -60,14 +61,46 @@ function go() {
     .attr({ w: Crafty.viewport.width, h: Crafty.viewport.height })
     .image("img/phaser.png", "repeat");
 
+  Crafty.c('prize', {
+    init(){
+      const sizeScale = Math.random() * 0.5 + 0.7
+      const attr = {
+        w: 50 * sizeScale,
+        h: 50 * sizeScale,
+        rotation: Math.random() * 360,
+        x: 0,
+        y: 0,
+      }
+      attr.x = parseInt(Math.random() * (WIDTH - attr.w))
+      this.addComponent('2D, Canvas, phaser, SpriteAnimation, Gravity, Mouse')
+        .attr(attr)
+        .origin('center')
+        .reel("walking", 500, [
+          [0, 0]
+        ])
+        .animate("walking", -1)
+        .gravity()
+        .bind('Click', function () {
+          console.log('Click', Date.now())
+        })
+        .timeout(function () {
+          this.destroy()
+        }, 3000)
+        .gravityConst(500)
 
-  var walker = Crafty.e('2D, Canvas, phaser, SpriteAnimation')
-    .attr({ x: 100, y: 100, w: 100, h: 100 })
-    .reel("walking", 500, [
-      [0, 0]
-    ])
-    .animate("walking", -1);
 
-  Crafty.viewport.scale(scale)
+    }
+  })
 
+  function generatePrize(num = 1) {
+    for (let i = 0; i < num; i++) {
+      Crafty.e('prize')
+    }
+  }
+
+  generatePrize(5)
+  setInterval(function () {
+    generatePrize()
+  }, 200)
+  Crafty.viewport.scale(viewScale)
 }
